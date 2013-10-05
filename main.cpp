@@ -11,7 +11,7 @@ const int frames = 5646;
 int main(){
 
     FILE *fp;
-    fp = fopen("/home/dmitry/projects/audio/speech.1.wav", "rb");
+    fp = fopen("speech.1.wav", "rb");
     std::ofstream out("result.txt");
     if (!out){
         std::cout << "Can't create file" << std::endl;
@@ -68,6 +68,5 @@ int main(){
         }
         out_frames3 << std::endl;
     }
-
     return 0;
 }
