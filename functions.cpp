@@ -67,15 +67,29 @@ void Hamming(std::vector<std::vector<double>>& frames){
 }
 
 void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames){
-//    const std::complex<double> number(1.0, 1.0);
     double sum = 0;
     for (std::size_t i_frames = 0; i_frames < frames.size(); ++i_frames){
         for (int k = 0; k < frame; ++k){
             for (int n = 0; n < frame; ++n){
                 sum += (frames[i_frames][k]) * (cos(-2 * PI * k * n / frame));
             }
-            fourierFrame[i_frames].push_back(pow(sum, 2));
+            fourierFrame[i_frames].push_back(sum);
             sum = 0;
         }
+    }
+}
+
+
+void comparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
+    int k = 0;
+    for (std::size_t i = 0; i < first_file.size(); ++i){
+        for (std::size_t j = 0; j < first_file[i].size(); ++j){
+            if (first_file[i][j] - second_file[i][j] < 5.0e-10){
+                k++;
+            }
+        }
+    }
+    if (k > 0.95 * frame){
+        std::cout << "OK!" << std::endl;
     }
 }
