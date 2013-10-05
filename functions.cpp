@@ -75,7 +75,7 @@ void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vecto
                 sum += (frames[i_frames][k]) * (cos(-2 * PI * k * n / frame));
             }
             fourierFrame[i_frames].push_back(pow(sum, 2));
+            sum = 0;
         }
-        sum = 0;
     }
 }

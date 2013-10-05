@@ -2,7 +2,7 @@
 #include <vector>
 #include <fstream>
 
-#include <functions.h>
+#include "functions.h"
 
 using namespace std;
 
