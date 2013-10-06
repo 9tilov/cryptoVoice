@@ -12,10 +12,10 @@ int main(){
 
     FILE *fp;
     FILE *fp1;
-    fp = fopen("/home/dmitry/projects/audio/empty.wav", "rb");
-    fp1 = fopen("/home/dmitry/projects/audio/empty1.wav", "rb");
+    fp = fopen("/home/dmitry/projects/audio/parol.wav", "rb");
+    fp1 = fopen("/home/dmitry/projects/audio/test2.wav", "rb");
 
-    std::ofstream out("result.txt");
+    std::ofstream out("result1.txt");
     if (!out){
         std::cout << "Can't create file" << std::endl;
     }
@@ -25,18 +25,12 @@ int main(){
 
     getAmlitude(fp, amplitude);
     getAmlitude(fp1, amplitude1);
-    std::ofstream out_amplitude("amp1.txt");
-    for (std::size_t i = 0; i < amplitude.size(); ++i){
-        out_amplitude << amplitude[i] << std::endl;
-    }
-    std::ofstream out_amplitude1("amp2.txt");
-    for (std::size_t i = 0; i < amplitude.size(); ++i){
-        out_amplitude1 << amplitude1[i] << std::endl;
-    }
+
 
     std::cout << "first = " << amplitude.size() << std::endl;
     addZeroes(amplitude);
     addZeroes(amplitude1);
+
     for (const auto& it: amplitude){
         out << it << std::endl;
     }
@@ -47,52 +41,82 @@ int main(){
     get(amplitude, frames);
     get(amplitude1, frames1);
     std::cout << "getFrame = " << frames.size() <<std::endl;
+
+    Hamming(frames);
+    Hamming(frames1);
+//    std::ofstream out_frames1("frames1.txt");
+//    for (std::size_t i = 0; i < frames.size(); ++i){
+//        for (std::size_t j = 0; j < frames[i].size(); ++j){
+//            out_frames1 << frames[i][j] << std::endl;
+//        }
+//        out_frames1 << std::endl;
+//    }
+
+//    std::ofstream out_frames2("frames2.txt");
+//    for (std::size_t i = 0; i < frames1.size(); ++i){
+//        for (std::size_t j = 0; j < frames1[i].size(); ++j){
+//            out_frames2 << frames1[i][j] << std::endl;
+//        }
+//        out_frames2 << std::endl;
+//    }
+    std::vector<std::vector<double>> fourierFrame(size_vector_of_frame);
+    std::vector<std::vector<double>> fourierFrame1(size_vector_of_frame);
+//    //    fourierTransform(fourierFrame, frames);
+//    //    fourierTransform(fourierFrame1, frames1);
+    newFourierTransform(fourierFrame, frames);
+    newFourierTransform(fourierFrame1, frames1);
     std::ofstream out_frames1("frames1.txt");
-    for (std::size_t i = 0; i < frames.size(); ++i){
-        for (std::size_t j = 0; j < frames[i].size(); ++j){
-            out_frames1 << frames[i][j] << std::endl;
+    for (std::size_t i = 0; i < fourierFrame.size(); ++i){
+        for (std::size_t j = 0; j < fourierFrame[i].size(); ++j){
+            out_frames1 << fourierFrame[i][j] << std::endl;
         }
         out_frames1 << std::endl;
     }
-    Hamming(frames);
-    Hamming(frames1);
-    std::vector<std::vector<double>> fourierFrame(size_vector_of_frame);
-    std::vector<std::vector<double>> fourierFrame1(size_vector_of_frame);
-    //    fourierTransform(fourierFrame, frames);
-    //    fourierTransform(fourierFrame1, frames1);
-    newFourierTransform(fourierFrame, frames);
-    newFourierTransform(fourierFrame1, frames1);
+
+    std::ofstream out_frames2("frames2.txt");
+    for (std::size_t i = 0; i < fourierFrame1.size(); ++i){
+        for (std::size_t j = 0; j < fourierFrame1[i].size(); ++j){
+            out_frames2 << fourierFrame1[i][j] << std::endl;
+        }
+        out_frames2 << std::endl;
+    }
     std::vector<double> result = newComparingAmplitudes(fourierFrame, fourierFrame1);
-    std::ofstream out_result("result.txt");
+    double summa = 0;
+    for (std::size_t i = 0; i < result.size(); ++i){
+        summa += result[i];
+    }
+    summa /= result.size();
+    std::cout << "summa = " << summa << std::endl;
+    std::ofstream out_result("result24.txt");
     for (std::size_t i = 0; i < fourierFrame.size(); ++i){
         out_result << result[i] << std::endl;
     }
 
-    //    comparingAmplitudes(fourierFrame, fourierFrame1);
-    std::cout << "framesHamming = " << frames.size() << std::endl;
+//    //    comparingAmplitudes(fourierFrame, fourierFrame1);
+//    std::cout << "framesHamming = " << frames.size() << std::endl;
 
-    std::ofstream out_fourer("fourer.txt");
-    for (std::size_t i = 0; i < fourierFrame.size(); ++i){
-        for (std::size_t j = 0; j < fourierFrame[i].size(); ++j){
-            out_fourer << fourierFrame[i][j] << std::endl;
-        }
-        out_fourer<< std::endl;
-    }
+//    std::ofstream out_fourer("fourer.txt");
+//    for (std::size_t i = 0; i < fourierFrame.size(); ++i){
+//        for (std::size_t j = 0; j < fourierFrame[i].size(); ++j){
+//            out_fourer << fourierFrame[i][j] << std::endl;
+//        }
+//        out_fourer<< std::endl;
+//    }
 
-    std::ofstream out_frames2("frames2.txt");
-    for (std::size_t i = 0; i < frames.size(); ++i){
-        for (std::size_t j = 0; j < frames[i].size(); ++j){
-            out_frames2 << frames[i][j] << std::endl;
-        }
-        out_frames2 << std::endl;
-    }
+//    std::ofstream out_frames2("frames2.txt");
+//    for (std::size_t i = 0; i < frames.size(); ++i){
+//        for (std::size_t j = 0; j < frames[i].size(); ++j){
+//            out_frames2 << frames[i][j] << std::endl;
+//        }
+//        out_frames2 << std::endl;
+//    }
 
-    std::ofstream out_frames3("frames3.txt");
-    for (std::size_t i = 0; i < frames.size(); ++i){
-        for (std::size_t j = 0; j < frames[i].size(); ++j){
-            out_frames3 << frames[i][j] << std::endl;
-        }
-        out_frames3 << std::endl;
-    }
+//    std::ofstream out_frames3("frames3.txt");
+//    for (std::size_t i = 0; i < frames.size(); ++i){
+//        for (std::size_t j = 0; j < frames[i].size(); ++j){
+//            out_frames3 << frames[i][j] << std::endl;
+//        }
+//        out_frames3 << std::endl;
+//    }
     return 0;
 }

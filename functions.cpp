@@ -14,7 +14,7 @@ void getAmlitude(FILE *fp, std::vector<double> &amplitude){
         byteInt_2 = static_cast<int> (byte_2);
         //        std::cout << ((int)byte_1) << "  " << ((int)byte_2) << std::endl;
         byteSum = (byteInt_2 << 8) | (byteInt_1 & 0x000000FF);
-        double amp = byteSum/* / 32768.0*/;
+        double amp = byteSum / 32768.0;
         amplitude.push_back(amp);
         fseek (fp, 46 + 2 * i, SEEK_SET);
     }
@@ -137,7 +137,10 @@ std::vector<double> newComparingAmplitudes(const std::vector<std::vector<double>
         }
         low_left_sum = sqrt(low_left_sum);
         low_right_sum = sqrt(low_right_sum);
-        result.push_back(abs(high_sum / (low_left_sum * low_right_sum)));
+        result.push_back(fabs(high_sum / (low_left_sum * low_right_sum)));
+        high_sum = 0;
+        low_left_sum = 0;
+        low_right_sum = 0;
     }
     return result;
 }
