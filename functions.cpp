@@ -14,12 +14,11 @@ void getAmlitude(FILE *fp, std::vector<double> &amplitude){
         byteInt_2 = static_cast<int> (byte_2);
         //        std::cout << ((int)byte_1) << "  " << ((int)byte_2) << std::endl;
         byteSum = (byteInt_2 << 8) | (byteInt_1 & 0x000000FF);
-        double amp = byteSum / 32768.0;
+        double amp = byteSum/* / 32768.0*/;
         amplitude.push_back(amp);
         fseek (fp, 46 + 2 * i, SEEK_SET);
     }
 }
-
 
 void addZeroes(std::vector<double> &amplitude){
     int k = static_cast<int> (amplitude.size()) % frame;
@@ -80,16 +79,65 @@ void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vecto
 }
 
 
+void newFourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames){
+    double sum = 0;
+    double even_sum = 0;
+    double odd_sum = 0;
+    for (std::size_t i_frames = 0; i_frames < frames.size(); ++i_frames){
+        for (int k = 0; k < frame; ++k){
+            for (int n = 0; n < frame; ++n){
+                if (k % 2 == 0){
+                    even_sum += (frames[i_frames][k]) * exp(-4 * PI * k * n / frame);
+                }else{
+                    odd_sum += (frames[i_frames][k]) * exp(-4 * PI * k * n / frame);
+                }
+                sum += even_sum + (exp(-2 * PI * k * n / frame)) * odd_sum;
+            }
+            fourierFrame[i_frames].push_back(sum);
+            sum = 0;
+        }
+    }
+}
+
 void comparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
     int k = 0;
     for (std::size_t i = 0; i < first_file.size(); ++i){
         for (std::size_t j = 0; j < first_file[i].size(); ++j){
-            if (first_file[i][j] - second_file[i][j] < 5.0e-10){
+            if (abs(first_file[i][j] - second_file[i][j]) < 0.000005){
                 k++;
             }
         }
+        if (k > frame - 5){
+            std::cout << "OK!" << std::endl;
+        }else{
+            std::cout << "NE OK!" << std::endl;
+        }
     }
-    if (k > 0.95 * frame){
-        std::cout << "OK!" << std::endl;
+
+}
+
+std::vector<double> newComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
+    std::vector<double> first_sum, second_sum, result;
+    double summa_first = 0, summa_second = 0, high_sum = 0, low_left_sum = 0, low_right_sum = 0;
+    for (std::size_t i = 0; i < first_file.size(); ++i){
+        for (std::size_t j = 0; j < second_file.size(); ++j){
+            summa_first += first_file[i][j];
+            summa_second += second_file[i][j];
+        }
+        summa_first /= frame;
+        summa_second /= frame;
+        first_sum.push_back(summa_first);
+        second_sum.push_back(summa_second);
     }
+    for (std::size_t i = 0; i < first_file.size(); ++i){
+        for (std::size_t j = 0; j < second_file.size(); ++j){
+            high_sum += (first_file[i][j] - first_sum[i]) * (second_file[i][j] - second_sum[i]);
+            low_left_sum += pow((first_file[i][j] - first_sum[i]), 2);
+            low_right_sum += pow((second_file[i][j] - second_sum[i]), 2);
+        }
+        low_left_sum = sqrt(low_left_sum);
+        low_right_sum = sqrt(low_right_sum);
+        result.push_back(abs(high_sum / (low_left_sum * low_right_sum)));
+    }
+    return result;
 }
