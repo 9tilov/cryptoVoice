@@ -18,6 +18,7 @@ void getFrames(const std::vector<double> &amplitude, std::vector<std::vector<dou
 void addZeroes(std::vector<double> &amplitude);
 void get(const std::vector <double> &amplitude, std::vector<std::vector<double>> &frames);
 void Hamming(std::vector<std::vector<double>>& frames);
+void newHamming(std::vector<std::vector<double>>& frames);
 void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames);
 void FourierTransform(std::vector<std::vector<double>>& fourierFrame, const std::vector<std::vector<double>>& frames);
 std::vector<double> ComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file);

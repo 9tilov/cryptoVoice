@@ -14,7 +14,7 @@ int main(){
     FILE *fp1;
 
     fp = fopen("/home/dmitry/projects/audio/test2.wav", "rb");
-    fp1 = fopen("/home/dmitry/projects/audio/test3.wav", "rb");
+    fp1 = fopen("/home/dmitry/projects/audio/parol.wav", "rb");
 
 
     std::ofstream out("result1.txt");
@@ -27,11 +27,11 @@ int main(){
 
     getAmlitude(fp, amplitude);
     getAmlitude(fp1, amplitude1);
-//    newfourierTransformWithAmplitudes(amplitude, amplitude1);
+    //    newfourierTransformWithAmplitudes(amplitude, amplitude1);
 
 
-//    double result_finish = newComparingAmplitudes(amplitude, amplitude1);
-//    std::cout << "result_finish = " << result_finish <<std::endl;
+    //    double result_finish = newComparingAmplitudes(amplitude, amplitude1);
+    //    std::cout << "result_finish = " << result_finish <<std::endl;
 
 
     std::cout << "first = " << amplitude.size() << std::endl;
@@ -49,12 +49,16 @@ int main(){
     get(amplitude1, frames1);
     std::cout << "getFrame = " << frames.size() <<std::endl;
 
-    Hamming(frames);
-    Hamming(frames1);
+
+    newHamming(frames);
+    newHamming(frames1);
+//    Hamming(frames);
+//    Hamming(frames1);
     std::vector<std::vector<double>> fourierFrame(size_vector_of_frame);
     std::vector<std::vector<double>> fourierFrame1(size_vector_of_frame);
     FourierTransform(fourierFrame, frames);
     FourierTransform(fourierFrame1, frames1);
+
     std::ofstream out_frames1("frames1.txt");
 
     std::vector<double> result = ComparingAmplitudes(fourierFrame, fourierFrame1);

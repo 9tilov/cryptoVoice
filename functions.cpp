@@ -65,6 +65,14 @@ void Hamming(std::vector<std::vector<double>>& frames){
     }
 }
 
+void newHamming(std::vector<std::vector<double>>& frames){
+    for (std::size_t i = 0; i < frames.size(); ++i){
+        for (std::size_t j = 1; j < frames[i].size(); ++j){
+            frames[i][j] = (frames[i][j] - 0.9 * frames[i][j - 1]) * (0.53836 - 0.46164 * cos((2 * PI * j) / 180));
+        }
+    }
+}
+
 void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames){
     double sum = 0;
     for (std::size_t i_frames = 0; i_frames < frames.size(); ++i_frames){
