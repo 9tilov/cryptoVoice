@@ -99,24 +99,7 @@ void newFourierTransform(std::vector<std::vector<double>>& fourierFrame, std::ve
     }
 }
 
-void comparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
-    int k = 0;
-    for (std::size_t i = 0; i < first_file.size(); ++i){
-        for (std::size_t j = 0; j < first_file[i].size(); ++j){
-            if (abs(first_file[i][j] - second_file[i][j]) < 0.000005){
-                k++;
-            }
-        }
-        if (k > frame - 5){
-            std::cout << "OK!" << std::endl;
-        }else{
-            std::cout << "NE OK!" << std::endl;
-        }
-    }
-
-}
-
-std::vector<double> newComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
+std::vector<double> ComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
     std::vector<double> first_sum, second_sum, result;
     double summa_first = 0, summa_second = 0, high_sum = 0, low_left_sum = 0, low_right_sum = 0;
     for (std::size_t i = 0; i < first_file.size(); ++i){
@@ -144,3 +127,4 @@ std::vector<double> newComparingAmplitudes(const std::vector<std::vector<double>
     }
     return result;
 }
+
