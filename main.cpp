@@ -14,7 +14,6 @@ int main(){
     FILE *fp1;
 
     fp = fopen("/home/dmitry/projects/audio/parol.wav", "rb");
-
     fp1 = fopen("/home/dmitry/projects/audio/bank.wav", "rb");
 
 
@@ -52,7 +51,9 @@ int main(){
     newFourierTransform(fourierFrame, frames);
     newFourierTransform(fourierFrame1, frames1);
     std::ofstream out_frames1("frames1.txt");
+
     std::vector<double> result = ComparingAmplitudes(fourierFrame, fourierFrame1);
+
     double summa = 0;
     for (std::size_t i = 0; i < result.size(); ++i){
         summa += result[i];
