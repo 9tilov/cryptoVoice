@@ -12,10 +12,10 @@ int main(){
 
     FILE *fp;
     FILE *fp1;
-    fp = fopen("/home/dmitry/projects/audio/empty.wav", "rb");
-    fp1 = fopen("/home/dmitry/projects/audio/empty1.wav", "rb");
+    fp = fopen("/home/dmitry/projects/audio/test5.wav", "rb");
+    fp1 = fopen("/home/dmitry/projects/audio/test2.wav", "rb");
 
-    std::ofstream out("result.txt");
+    std::ofstream out("result1.txt");
     if (!out){
         std::cout << "Can't create file" << std::endl;
     }
@@ -63,7 +63,13 @@ int main(){
     newFourierTransform(fourierFrame, frames);
     newFourierTransform(fourierFrame1, frames1);
     std::vector<double> result = newComparingAmplitudes(fourierFrame, fourierFrame1);
-    std::ofstream out_result("result.txt");
+    double summa = 0;
+    for (std::size_t i = 0; i < result.size(); ++i){
+        summa += result[i];
+    }
+    summa /= frame;
+    std::cout << "summa = " << summa << std::endl;
+    std::ofstream out_result("result24.txt");
     for (std::size_t i = 0; i < fourierFrame.size(); ++i){
         out_result << result[i] << std::endl;
     }
