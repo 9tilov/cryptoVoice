@@ -79,7 +79,7 @@ void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vecto
 }
 
 
-void newFourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames){
+void newFourierTransform(std::vector<std::vector<double>>& fourierFrame, const std::vector<std::vector<double>>& frames){
     double sum = 0;
     double even_sum = 0;
     double odd_sum = 0;
@@ -97,6 +97,46 @@ void newFourierTransform(std::vector<std::vector<double>>& fourierFrame, std::ve
             sum = 0;
         }
     }
+}
+
+void fourierTransformWithAmplitudes(const std::vector<double>& amplitude, std::vector<double>& fourier){
+    double sum = 0;
+    double even_sum = 0;
+    double odd_sum = 0;
+    for (std::size_t i = 0; i < amplitude.size(); ++i){
+        for (int k = 0; k < frame; ++k){
+            if (i % 2 == 0){
+                even_sum += (amplitude[i]) * exp(-4 * PI * i * k / frame);
+            }else{
+                odd_sum += (amplitude[i]) * exp(-4 * PI * k * i / frame);
+            }
+            sum += even_sum + (exp(-2 * PI * k * i / frame)) * odd_sum;
+        }
+        fourier.push_back(sum);
+        sum = 0;
+    }
+}
+
+double newComparingAmplitudes(const std::vector<double>& first_file, const std::vector<double>& second_file){
+    double result;
+    double summa_first = 0, summa_second = 0, high_sum = 0, low_left_sum = 0, low_right_sum = 0;
+    for (std::size_t i = 0; i < first_file.size(); ++i){
+        summa_first += first_file[i];
+        summa_second += second_file[i];
+    }
+    summa_first /= first_file.size();
+    summa_second /= first_file.size();
+    for (std::size_t i = 0; i < first_file.size(); ++i){
+
+        high_sum += (first_file[i] - summa_first) * (second_file[i] - summa_second);
+        low_left_sum += pow((first_file[i] - summa_first), 2);
+        low_right_sum += pow((second_file[i] - summa_second), 2);
+    }
+    low_left_sum = sqrt(low_left_sum);
+    low_right_sum = sqrt(low_right_sum);
+    result = fabs(high_sum / (low_left_sum * low_right_sum));
+    return result;
+
 }
 
 std::vector<double> ComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file){
