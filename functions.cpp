@@ -20,14 +20,27 @@ void getAmlitude(FILE *fp, std::vector<double> &amplitude){
     }
 }
 
-void addZeroes(std::vector<double> &amplitude){
-    int k = static_cast<int> (amplitude.size()) % frame;
-    for (int i_add = 0; i_add < frame - k; ++i_add){
-        amplitude.emplace_back(0);
+//void addZeroes(std::vector<double> &amplitude){
+//    int k = static_cast<int> (amplitude.size()) % frame;
+//    for (int i_add = 0; i_add < frame - k; ++i_add){
+//        amplitude.emplace_back(0);
+//    }
+//}
+
+void addZeroes (std::vector<double> &amplitudes){
+    int a = 1, degree = 0;
+    for (degree = 0;;++degree){
+        if (a > (int)amplitudes.size()){
+            break;
+        }
+        a <<= 1;
     }
+    int delta = pow(2, degree) - amplitudes.size();
+    for (int i = 0; i < delta; ++i){
+        amplitudes.push_back(0);
+    }
+    std::cout << degree << std::endl;
 }
-
-
 
 void getFrames(const std::vector<double> &amplitude, std::vector<std::vector<double>> &frames){
     int j = 0;
