@@ -1,12 +1,12 @@
 clear all% Очистка памяти
 
-ampl = fopen('artem3.txt', 'r');
-key = fopen('dima3.txt', 'r');
+ampl = fopen('vioce_records\den_o.txt', 'r');
+key = fopen('vioce_records\den_o2.txt', 'r');
 if( ampl == -1 )
-  error( 'File ampl is not opened' )
+  error( 'File ampl is not opened' );
 end;
 if( key == -1 )
-  error( 'File key is not opened' )
+  error( 'File key is not opened' );
 end;
 
 
@@ -28,45 +28,90 @@ while ~feof(key)
 end;
 wav_key(cnt) = 0;
 
+%disp(length(wav_signal));
+%disp(length(wav_key));
+
 fclose(key);
 fclose(ampl);
-%% Hammings's windows
-%for cnt = 1:1:length(wav_signal)
-%    wav_signal(cnt) = wav_signal(cnt)*(0.53836 - 0.46164*cos(cnt*2*pi/(length(wav_signal)-1)));
-%end;
 
-%for cnt = 1:1:length(wav_key)
-%    wav_key(cnt) = wav_key(cnt)*(0.53836 - 0.46164*cos(cnt*2*pi/(length(wav_key)-1)));
-%end;
+%% нормировка
+
+% signal_mean=0;
+% key_mean=0;
+% ratio=0;
+% for cnt = 1:1:length(wav_signal)
+%     signal_mean = signal_mean + abs(wav_signal(cnt));
+% end;
+% signal_mean = signal_mean / length(wav_signal);
+% 
+% for cnt = 1:1:length(wav_key)
+%     key_mean = key_mean + abs(wav_key(cnt));
+% end;
+% key_mean = key_mean / length(wav_key);
+% 
+% 
+% if (signal_mean > key_mean)
+%     ratio = signal_mean / key_mean;
+%     disp(ratio);
+%     for cnt = 1:1:length(wav_signal)
+%         wav_signal(cnt) = wav_signal(cnt) / ratio;
+%     end;
+% else
+%     ratio = key_mean / signal_mean;
+%     disp(ratio);
+%     for cnt = 1:1:length(wav_key)   
+%         wav_signal(cnt) = wav_signal(cnt) / ratio;
+%     end;
+% end;
+
+
+%% Hammings's windows
+% for cnt = 2:1:length(wav_signal)
+%     %wav_signal(cnt) = wav_signal(cnt)*(0.53836 - 0.46164*cos(cnt*2*pi/(length(wav_signal)-1)));
+%     wav_signal(cnt) = (wav_signal(cnt)-0.9*wav_signal(cnt-1))*(0.54 - 0.46*cos((cnt-6)*2*pi/180));
+% end;
+% 
+% for cnt = 2:1:length(wav_key)
+%      %wav_key(cnt) = wav_key(cnt)*(0.53836 - 0.46164*cos(cnt*2*pi/(length(wav_key)-1)));
+%      wav_key(cnt) = (wav_key(cnt)-0.9*wav_key(cnt-1))*(0.54 - 0.46*cos((cnt-6)*2*pi/180));     
+% end;
 
 %% Параметры
-Tm=3;% Длина сигнала (с)
+Tm=5644/44100;% Длина сигнала (с)
 Fd=44100;% Частота дискретизации (Гц)
 FftL=65536;% Количество линий Фурье спектра
+% if (length(wav_signal) > length(wav_key))
+%    Tm = length(wav_key)/Fd;
+%    FftL = length(wav_key);
+% else
+%     Tm = length(wav_signal)/Fd;
+%     FftL = length(wav_signal);
+% end
 
 %% Генерация рабочих массивов
-T=0:1/Fd:Tm;% Массив отсчетов времени
+T=0:1/Fd:Tm - 1/Fd;% Массив отсчетов времени
+%disp(length(T));
 %T=wav_signal;
 %disp(length(T));
 %disp(length(wav_signal));
-Signal=wav_signal;%Ak+A1*sind((F1*360).*T+Phi1)+A2*sind((F2*360).*T+Phi2);% Массив сигнала (смесь 2х синусоид и постоянной составляющей)
-signal2=wav_key;
+Signal=wav_signal(1:length(T));
+signal2=wav_key(1:length(T));
 %disp(length(wav_key));
 
 %% Спектральное представление сигнала
-FftS=abs(fft(Signal,FftL));% Амплитуды преобразования Фурье сигнала
-FftS=2*FftS./FftL;% Нормировка спектра по амплитуде
-FftS(1)=FftS(1)/2;% Нормировка постоянной составляющей в спектре
-FftSh=abs(fft(signal2,FftL));% Амплитуды преобразования Фурье смеси сигнал+шум
-FftSh=2*FftSh./FftL;% Нормировка спектра по амплитуде
-FftSh(1)=FftSh(1)/2;% Нормировка постоянной составляющей в спектре
+FftS=abs(fft(Signal, FftL));% Амплитуды преобразования Фурье сигнала
+%FftS=2*FftS./FftL;% Нормировка спектра по амплитуде
+%FftS(1)=FftS(1)/2;% Нормировка постоянной составляющей в спектре
+FftSh=abs(fft(signal2, FftL));% Амплитуды преобразования Фурье смеси сигнал+шум
+%FftSh=2*FftSh./FftL;% Нормировка спектра по амплитуде
+%FftSh(1)=FftSh(1)/2;% Нормировка постоянной составляющей в спектре
 %% Получаем спектральную мощность
 P_ffts = FftS.^2;
 %% фильтры:
-P = 20;% число фильтров
-Fl = 0;
-Fh = Fd/2 - 1/FftL;
-MEL_Fl = 0;
+P = 16;% число фильтров
+Fl = Fd/215 - 1/FftL;% from 100 Hz
+Fh = Fd/73 - 1/FftL;% to 1000 Hz
+MEL_Fl = 1127*log(1+Fl/700);
 MEL_Fh = 1127*log(1+Fh/700);
 MEL_len = (MEL_Fh - MEL_Fl)/(P+1);
 
@@ -152,12 +197,13 @@ end
 
 %diff_ = c-c1;
 %disp(diff_);
-%% kуй
+%% kу
 M_signal = 0;
 M_key = 0;
 
 for k = 1:1:P
     M_signal = M_signal + c(k);
+    fprintf('%g, %g\n',c(k),c1(k));
 end
 M_signal = M_signal/P;
  
@@ -169,8 +215,8 @@ M_key = M_key/P;
 Up_sum = 0;
 Left_sum = 0;
 Right_sum = 0;
-disp(M_signal);
-disp(M_key);
+%disp(M_signal);
+%disp(M_key);
 for k = 1:1:P
     Up_sum = Up_sum + (c(k)-M_signal)*(c1(k)-M_key);
     %disp(Up_sum);
@@ -179,70 +225,31 @@ for k = 1:1:P
 end
 
 disp( abs(Up_sum/(sqrt(Left_sum)*sqrt(Right_sum))) );
-
-%% Определяем похожесть
-%M_signal = 0;
-%M_key = 0;
-%size = 1487;% 1000 Hz
-%size = 1041;% 700 Hz
-%size = 892;% 600 Hz
-
-%for k = 1:1:size
-%    M_signal = M_signal + FftS(k);
-%end
-%M_signal = M_signal/size;
- 
-%for k = 1:1:size
-%    M_key = M_key + FftSh(k);
-%end
-%M_key = M_key/size;
-
-% убираем частоты, амплитуда которых меньше средней в спетре (Зачем я это делаю?)
-%for cnt = 1:1:size
-%   if (FftS(cnt) < M_signal)
-%       FftS(cnt) = 0;
-%   end
-%   if (FftSh(cnt) < M_signal)
-%       FftSh(cnt) = 0;
-%   end
-%end
-
-%Up_sum = 0;
-%Left_sum = 0;
-%Right_sum = 0;
-%for k = 1:1:size
-%    Up_sum = Up_sum + (FftS(k)-M_signal)*(FftSh(k)-M_key);
-%    Left_sum = Left_sum + (FftS(k)-M_signal)^2;
-%    Right_sum = Right_sum + (FftSh(k)-M_key)^2;
-%end
-
-%disp( (Up_sum/(sqrt(Left_sum)*sqrt(Right_sum))) );
-
 %% Построение графиков
 subplot(2,1,1);% Выбор области окна для построения
-%plot(T,Signal);% Построение сигнала
+plot(T,Signal);% Построение сигнала
 title('Сигнал 1');% Подпись графика
 xlabel('Время (с)');% Подпись оси х графика
 ylabel('Амплитуда (Попугаи)');% Подпись оси у графика
 subplot(2,1,2);% Выбор области окна для построения
-%plot(T,signal2);% Построение смеси сигнал+шум
+plot(T,signal2);% Построение смеси сигнал+шум
 title('Сигнал 2');% Подпись графика
 xlabel('Время (с)');% Подпись оси х графика
 ylabel('Амплитуда (Попугаи)');% Подпись оси у графика
 
-%F=0:Fd/FftL:Fd/2-1/FftL;% Массив частот вычисляемого спектра Фурье
-F=0:Fd/FftL:Fd/2-1/FftL;
+F=0:Fd/FftL:1000;%Fd/2-1/FftL;% Массив частот вычисляемого спектра Фурье
+%F=0:Fd/FftL:Fd/2-1/FftL;
 figure% Создаем новое окно
 subplot(2,1,1);% Выбор области окна для построения
-%plot(F,FftS(1:length(F)));% Построение спектра Фурье сигнала
+plot(F,FftS(1:length(F)));% Построение спектра Фурье сигнала
 title('Спектр сигнала 1');% Подпись графика
 xlabel('Частота (Гц)');% Подпись оси х графика
 ylabel('Амплитуда (Попугаи)');% Подпись оси у графика
 subplot(2,1,2);% Выбор области окна для построения
-F1 = 0:1:length(mels1)-1;
-disp(length(F1));
-disp(length(mels1));
-%plot(F1,mels1);% Построение спектра Фурье сигнала
+%F1 = 0:1:length(mels1)-1;
+%disp(length(F1));
+%disp(length(mels1));
+plot(F,FftSh(1:length(F)));% Построение спектра Фурье сигнала
 title('Спектр сигнала 2');% Подпись графика
 xlabel('Частота (Гц)');% Подпись оси х графика
 ylabel('Амплитуда (Попугаи)');% Подпись оси у графика
