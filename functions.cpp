@@ -7,25 +7,32 @@ void getAmlitude(FILE *fp, std::vector<double> &amplitude){
     int sizeOfDataFile = ftell(fp) - 44;
 
     fseek(fp, 44, SEEK_SET);
-
+	amplitude.reserve(140000);
     for (int i = 0; i < sizeOfDataFile / 2; i += 2){
         fscanf(fp, "%c%c", &byte_1, &byte_2);
         byteInt_1 = static_cast<int> (byte_1);
         byteInt_2 = static_cast<int> (byte_2);
-        //        std::cout << ((int)byte_1) << "  " << ((int)byte_2) << std::endl;
         byteSum = (byteInt_2 << 8) | (byteInt_1 & 0x000000FF);
         double amp = byteSum / 32768.0;
+		
         amplitude.push_back(amp);
         fseek (fp, 46 + 2 * i, SEEK_SET);
     }
+	std::cout << "data = " << sizeOfDataFile << " size = " << amplitude.size()<< std::endl;
 }
 
-//void addZeroes(std::vector<double> &amplitude){
-//    int k = static_cast<int> (amplitude.size()) % frame;
-//    for (int i_add = 0; i_add < frame - k; ++i_add){
-//        amplitude.emplace_back(0);
-//    }
-//}
+
+void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl){
+	if (standart_ampl > test_ampl) {
+		int total = test_ampl.size() / frame;
+		standart_ampl.resize(total * frame);
+		test_ampl.resize(total * frame);
+	} else {
+		int total = standart_ampl.size() / frame;
+		test_ampl.resize(total * frame);
+		standart_ampl.resize(total * frame);
+	}
+}
 
 void addZeroes (std::vector<double> &amplitudes){
     int a = 1, degree = 0;
@@ -35,7 +42,7 @@ void addZeroes (std::vector<double> &amplitudes){
         }
         a <<= 1;
     }
-    int delta = pow(2, degree) - amplitudes.size();
+    int delta = pow((double)2, (double)degree) - amplitudes.size();
     for (int i = 0; i < delta; ++i){
         amplitudes.push_back(0);
     }
@@ -44,7 +51,8 @@ void addZeroes (std::vector<double> &amplitudes){
 
 void getFrames(const std::vector<double> &amplitude, std::vector<std::vector<double>> &frames){
     int j = 0;
-    int size_of_vector_frame = (static_cast<int> (amplitude.size())) / frame;
+    int size_of_vector_frame = (static_cast<int>(amplitude.size())) / frame;
+	frames.reserve(size_of_vector_frame);
     while (j < size_of_vector_frame){
         for (std::size_t ampl = 1; ampl < amplitude.size() + 1; ++ampl){
             frames[j].push_back(amplitude[ampl - 1]);
@@ -55,18 +63,24 @@ void getFrames(const std::vector<double> &amplitude, std::vector<std::vector<dou
     }
 }
 
-//\ TODO Ð´Ð»Ñ Ð¾Ð±Ð»ÐµÐ³Ñ‡ÐµÐ½Ð¸Ñ Ñ€Ð°ÑÑ‡ÐµÑ‚Ð¾Ð²
+//\ TODO äëÿ îáëåã÷åíèÿ ðàñ÷åòîâ
 
 void get(const std::vector <double> &amplitude, std::vector<std::vector<double>> &frames){
     std::size_t k = 0;
     int left = 0, right = frame;
-    while (k < 2 * amplitude.size() / frame){
-        for (int i = left + 1; i < right + 1; ++i){
-            frames[k].push_back(amplitude[i - 1]);
-        }
-        left += frame / 2;
-        right += frame / 2;
-        k++;
+
+	for (std::size_t i = 0; i < frames.size(); ++i){
+		frames[i].reserve(frame);
+	}
+
+	for (int k = 0; k < 2 * amplitude.size() / frame; ++k){
+		if (right <= amplitude.size()){
+			for (int i = left; i < right; ++i){
+				frames[k].push_back(amplitude[i]);
+			}
+			left += frame / 2;
+			right += frame / 2;
+		}
     }
 }
 
@@ -151,47 +165,121 @@ std::vector<double> ComparingAmplitudes(const std::vector<std::vector<double>>& 
     return result;
 }
 
+void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output, int Nvl, int Nft) {
+  int i, j, n, m, Mmax, Istp;
+  double Tmpr, Tmpi, Wtmp, Theta;
+  double Wpr, Wpi, Wr, Wi;
+  std::vector<double> temp(2 * Nvl, 0);
+ 
+  n = Nvl * 2;
+ 
+  for (int k = 0; k < Nvl; ++k) {
+	temp.insert(temp.begin() + k * 2 , 0);
+	temp.insert(temp.begin() + k * 2 + 1, input[k]);
+  }
+ 
+  i = 1; j = 1;
+  while (i < n) {
+    if (j > i) {
+      Tmpr = temp[i];
+	   temp[i] = temp[j];
+	   temp[j] = Tmpr;
+	   Tmpr = temp[i+1];
+	   temp[i+1] = temp[j+1];
+	   temp[j+1] = Tmpr;
+    }
+    i = i + 2;
+	m = Nvl;
+    while ((m >= 2) && (j > m)) {
+      j = j - m; 
+	  m = m >> 1;
+    }
+    j = j + m;
+  }
+ 
+  Mmax = 2;
+  while (n > Mmax) {
+    Theta = -TwoPi / Mmax; 
+ Wpi = sin(Theta);
+    Wtmp = sin(Theta / 2); 
+ Wpr = Wtmp * Wtmp * 2;
+    Istp = Mmax * 2;
+ Wr = 1;
+ Wi = 0;
+ m = 1;
+ 
+    while (m < Mmax) {
+      i = m;
+   m = m + 2; 
+   Tmpr = Wr; 
+   Tmpi = Wi;
+      Wr = Wr - Tmpr * Wpr - Tmpi * Wpi;
+      Wi = Wi + Tmpr * Wpi - Tmpi * Wpr;
+ 
+      while (i < n) {
+        j = i + Mmax;
+        Tmpr = Wr * temp[j] - Wi * temp[j-1];
+        Tmpi = Wi * temp[j] + Wr * temp[j-1];
+  
+  
+		temp[j] = temp[i] - Tmpr;
+		temp[j-1] = temp[i-1] - Tmpi;
+		temp[i] = temp[i] + Tmpr;
+		temp[i-1] = temp[i-1] + Tmpi;
+        i = i + Istp;
+      }
+    }
+ 
+    Mmax = Istp;
+  }
+ 
+  for (i = 0; i < ceil(Nft / 44.1); i++) {
+    j = i * 2;
+	output[Nft - i - 1] = pow(sqrt(pow(temp[j], 2) + pow(temp[j + 1], 2)), 2);
+  }
+}
 
-//void newfourierTransformWithAmplitudes(const std::vector<double>& amplitude, std::vector<double>& fourier){
-//    double sum = 0;
-//    std::cout << "enter to fourier" << std::endl;
-//    double even_sum = 0;
-//    double odd_sum = 0;
-//    for (std::size_t i = 0; i < amplitude.size(); ++i){
-//        for (std::size_t k = 0; k < amplitude.size(); ++k){
-//            if (k % 2 == 0){
-//                even_sum += (amplitude[k]) * exp(-4 * PI * i * k / frame);
-//            }else{
-//                odd_sum += (amplitude[k]) * exp(-4 * PI * i * k / frame);
-//            }
-//            sum += even_sum + (exp(-2 * PI * k * i / frame)) * odd_sum;
-//        }
-//        fourier.push_back(sum);
-//        sum = 0;
-//        std::cout << "push" << " i = " << i << std::endl;
-//    }
-//    std::cout << "exit fourier" << std::endl;
-//}
+void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients) {
+	coefficients.reserve(coeffs * fourier[0].size());
+	double freq_low = freq_dis / 215, freq_high = freq_dis / 73, mel_low = 1127 * log(1 + freq_low / 700), mel_high = 1127 * log(1 + freq_high / 700), mel_dist = (mel_high - mel_low) / (coeffs + 1), sample_high;
+	
+	double mel_centries[coeffs], freq_centies[coeffs], x[coeffs], temp = 0;
+	int freq_samples[coeffs];
+	for (int i = 0; i < coeffs; ++i){
+		mel_centries[i] = mel_low + mel_dist * (i + 1);
+		freq_centies[i] = 700 * (exp(mel_centries[i] / 1127) - 1);
+		freq_samples[i] = fourier[0].size() * freq_centies[i] / freq_dis;
+	}
 
-//double newComparingAmplitudes(const std::vector<double>& first_file, const std::vector<double>& second_file){
-//    double result;
-//    std::cout << "endter to comparing" << std::endl;
-//    double summa_first = 0, summa_second = 0, high_sum = 0, low_left_sum = 0, low_right_sum = 0;
-//    for (std::size_t i = 0; i < first_file.size(); ++i){
-//        summa_first += first_file[i];
-//        summa_second += second_file[i];
-//    }
-//    summa_first /= first_file.size();
-//    summa_second /= second_file.size();
-//    for (std::size_t i = 0; i < first_file.size(); ++i){
-//        high_sum += (first_file[i] - summa_first) * (second_file[i] - summa_second);
-//        low_left_sum += pow((first_file[i] - summa_first), 2);
-//        low_right_sum += pow((second_file[i] - summa_second), 2);
-//    }
-//    low_left_sum = sqrt(low_left_sum);
-//    low_right_sum = sqrt(low_right_sum);
-//    result = fabs(high_sum / (low_left_sum * low_right_sum));
-//    std::cout << "exit comparing" << std::endl;
-//    return result;
+	for (std::size_t m = 0; m < fourier.size(); ++m) {
+		temp = 0;
+		for (int i = 0; i < coeffs; ++i) {
+			for (std::size_t k = 0; k < fourier[m].size(); ++k) {
 
-//}
+				if (i > 0 && i < coeffs - 1) {
+					if ((k < freq_samples[i]) && (k > freq_samples[i - 1])) {
+						x[i] += fourier[m][k] * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
+					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
+						x[i] += fourier[m][k] * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
+					}
+				} else if(i == 1) {
+					if (k < freq_samples[i - 1]) {
+						x[i] += fourier[m][k] * (k / freq_samples[i]);
+					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
+						x[i] += fourier[m][k] * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
+					}
+				} else if (i == coeffs - 1) {
+					if ((k < freq_samples[i]) && (k > freq_samples[i - 1])) {
+						x[i] += fourier[m][k] * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
+					} else if (k > freq_samples[i]) {
+						x[i] += fourier[m][k] * (k / freq_samples[i]);
+					}
+				}
+			}
+			x[i] = log(x[i]);
+		}
+	}
+	for (int i = 0; i < coeffs; ++i){
+		std::cout << x[i] << std::endl;
+	}
+}
