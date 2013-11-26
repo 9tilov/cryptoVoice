@@ -13,7 +13,7 @@
 
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
-const int frame = 5646;
+const int frame = 4096;
 const int coeffs = 16;
 const int freq_dis = 44100;
 
