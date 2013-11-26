@@ -8,6 +8,8 @@
 #include <math.h>
 #include <complex>
 #include <conio.h>
+//#include <time.h>
+//#include <list>
 
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
@@ -26,6 +28,6 @@ void FourierTransform(std::vector<std::vector<double>>& fourierFrame, const std:
 std::vector<double> ComparingAmplitudes(const std::vector<std::vector<double>>& first_file, const std::vector<std::vector<double>>& second_file);
 double newComparingAmplitudes(const std::vector<double>& first_file, const std::vector<double>& second_file);
 void newfourierTransformWithAmplitudes(const std::vector<double>& amplitude, std::vector<double>& fourier);
-void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output, int Nvl, int Nft);
+void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output);
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl);
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients);
