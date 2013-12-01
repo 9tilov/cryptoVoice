@@ -8,12 +8,11 @@
 #include <math.h>
 #include <complex>
 #include <conio.h>
-//#include <time.h>
-//#include <list>
+#include <ctime>
 
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
-const int frame = 5646;
+const int frame = 4096;
 const int coeffs = 16;
 const int freq_dis = 44100;
 
@@ -31,3 +30,4 @@ void newfourierTransformWithAmplitudes(const std::vector<double>& amplitude, std
 void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output);
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl);
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients);
+double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);

@@ -50,17 +50,35 @@ int main(int argc, char** argv){
 		output_test_frames[i].resize(frame);
 	}
 	
+	double t1 = clock();
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÔÓĞÜ¨áàíàğîòáëÿñóêà ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 	for (std::size_t i = 0; i < standart_frames.size(); ++i){
 		FFTAnalysis(standart_frames[i], output_standart_frames[i]);
-		//FFTAnalysis(test_frames[i], output_test_frames[i]);
+		FFTAnalysis(test_frames[i], output_test_frames[i]);
 	}
-	std::cout << "OK" << std::endl;
+	double t2 = clock();
+	std::cout << "FFT done! " << t2 - t1 << std::endl;
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÔÓĞÜ¨ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 	
-	//std::vector<double> coefficients;
-	//melCepstral(output_standart_frames, coefficients);
-	
+	std::vector<double> standart_coefficients;
+	std::vector<double> test_coefficients;
+
+	melCepstral(output_standart_frames, standart_coefficients);
+	melCepstral(output_test_frames, test_coefficients);
+	 
+	std::cout << "size 1 = " << standart_coefficients.size() << " size 2  = " << test_coefficients.size() << std::endl;
+
+	double result = 0;
+	result = measureFrames(standart_coefficients, test_coefficients);
+
+	std::cout << "result = " << result << std::endl;
+
+	std::ofstream standart_mel("standart_mel.txt");
+	std::ofstream test_mel("test_mel.txt");
+	for (std::size_t i = 0; i < standart_coefficients.size(); ++i){
+		standart_mel << standart_coefficients[i] << std::endl;
+			test_mel << test_coefficients[i] << std::endl;
+		}
 
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 	std::ofstream standart_result("standart_result.txt");
@@ -84,7 +102,7 @@ int main(int argc, char** argv){
 		 standart_result1 << "======================================================================" << std::endl;
 		 test_result1 << "======================================================================" << std::endl;
 	}
-	std::cout << "wrote!" << std::endl;
+	std::cout << "write to file!" << std::endl;
 
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

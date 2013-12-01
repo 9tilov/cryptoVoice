@@ -168,21 +168,21 @@ void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output) 
 	int i = 0, j = 0, n = 0, m = 0, Mmax = 0, Istp = 0, size = (int)input.size();
 	double Tmpr = 0, Tmpi = 0, Wtmp = 0, Theta = 0;
 	double Wpr = 0, Wpi = 0, Wr = 0, Wi = 0;
-	double *temp;
- 
+	
+	double *temp; 
 	n = size * 2;
-
-	temp = new double[2 * n];
-	for (int g = 0; g < 2 * n; ++g){
-		temp[g] = 0;
-	}
  
-	for (i = 0; i < size; ++i) {
-		j = i * 2; 
-		temp[j] = 0;
-		temp[j+1] = input[i];
-	}
-
+   temp = new double[2 * n];
+   
+   for (int g = 0; g < 2 * n; ++g){
+	   temp[g] = 0;
+   }
+  
+   for (i = 0; i < size; ++i) {
+     j = i * 2; 
+     temp[j] = 0;
+     temp[j+1] = input[i];
+   }
 	i = 1;
 	j = 1;
 
@@ -238,82 +238,8 @@ void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output) 
 		j = i * 2; 
 		output[size - i - 1] = pow(sqrt(pow(temp[j], 2) + pow(temp[j + 1], 2)), 2);
 	}
-  delete []temp;
+	delete []temp;
 }
-
-/*void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output, int Nvl, int Nft) {
-  int i, j, n, m, Mmax, Istp;
-  double Tmpr, Tmpi, Wtmp, Theta;
-  double Wpr, Wpi, Wr, Wi;
-  std::vector<double> temp(2 * Nvl, 0);
- 
-  n = Nvl * 2;
- 
-  for (int k = 0; k < Nvl; ++k) {
-  temp.insert(temp.begin() + k * 2 , 0);
-  temp.insert(temp.begin() + k * 2 + 1, input[k]);
-  }
- 
-  i = 1; j = 1;
-  while (i < n) {
-    if (j > i) {
-      Tmpr = temp[i];
-     temp[i] = temp[j];
-     temp[j] = Tmpr;
-     Tmpr = temp[i+1];
-     temp[i+1] = temp[j+1];
-     temp[j+1] = Tmpr;
-    }
-    i = i + 2;
-  m = Nvl;
-    while ((m >= 2) && (j > m)) {
-      j = j - m; 
-    m = m >> 1;
-    }
-    j = j + m;
-  }
- 
-  Mmax = 2;
-  while (n > Mmax) {
-    Theta = -TwoPi / Mmax; 
- Wpi = sin(Theta);
-    Wtmp = sin(Theta / 2); 
- Wpr = Wtmp * Wtmp * 2;
-    Istp = Mmax * 2;
- Wr = 1;
- Wi = 0;
- m = 1;
- 
-    while (m < Mmax) {
-      i = m;
-   m = m + 2; 
-   Tmpr = Wr; 
-   Tmpi = Wi;
-      Wr = Wr - Tmpr * Wpr - Tmpi * Wpi;
-      Wi = Wi + Tmpr * Wpi - Tmpi * Wpr;
- 
-      while (i < n) {
-        j = i + Mmax;
-        Tmpr = Wr * temp[j] - Wi * temp[j-1];
-        Tmpi = Wi * temp[j] + Wr * temp[j-1];
- 
-  
-    temp[j] = temp[i] - Tmpr;
-    temp[j-1] = temp[i-1] - Tmpi;
-    temp[i] = temp[i] + Tmpr;
-    temp[i-1] = temp[i-1] + Tmpi;
-       i = i + Istp;
-     }
-   }
- 
-    Mmax = Istp;
-  }
- 
-  for (i = 0; i < ceil(Nft / 44.1); i++) {
-    j = i * 2;
-  output[Nft - i - 1] = pow(sqrt(pow(temp[j], 2) + pow(temp[j + 1], 2)), 2);
-  }
-}*/
 
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients) {
 	coefficients.reserve(coeffs * fourier[0].size());
@@ -321,6 +247,9 @@ void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<do
 	
 	double mel_centries[coeffs], freq_centies[coeffs], x[coeffs], temp = 0;
 	int freq_samples[coeffs];
+	for (int i = 0; i < coeffs; ++i) {
+		x[i] = 0;
+	}
 	for (int i = 0; i < coeffs; ++i){
 		mel_centries[i] = mel_low + mel_dist * (i + 1);
 		freq_centies[i] = 700 * (exp(mel_centries[i] / 1127) - 1);
@@ -338,7 +267,7 @@ void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<do
 					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
 						x[i] += fourier[m][k] * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
 					}
-				} else if(i == 1) {
+				} else if(i == 0) {
 					if (k < freq_samples[i - 1]) {
 						x[i] += fourier[m][k] * (k / freq_samples[i]);
 					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
@@ -356,6 +285,25 @@ void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<do
 		}
 	}
 	for (int i = 0; i < coeffs; ++i){
-		std::cout << x[i] << std::endl;
+		coefficients.push_back(x[i]);
 	}
+}
+
+double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample) {
+	double result = 0, up_sum = 0, left_sum = 0, right_sum = 0, standart_expected_value = 0, test_expected_value = 0;
+	for (std::size_t i = 0; i < standart_sample.size(); ++i) {
+		standart_expected_value += standart_sample[i];
+		test_expected_value += test_sample[i];
+	}
+	standart_expected_value /= standart_sample.size();
+	test_expected_value /= test_sample.size();
+
+	for (std::size_t i = 0; i < standart_sample.size(); ++i) {
+		up_sum += (standart_sample[i] - standart_expected_value) * (test_sample[i] - test_expected_value);
+		left_sum += pow((standart_sample[i] - standart_expected_value), 2);
+		right_sum += pow((test_sample[i] - test_expected_value), 2);
+	}
+
+	result = abs(up_sum / (sqrt(left_sum) * sqrt(right_sum)));
+	return result;
 }
