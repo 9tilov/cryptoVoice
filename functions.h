@@ -30,4 +30,7 @@ void newfourierTransformWithAmplitudes(const std::vector<double>& amplitude, std
 void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output);
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl);
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients);
+<<<<<<< HEAD
 double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+=======
+>>>>>>> aa38221f17bbbc37bd4dd853002007c00af32f5d
