@@ -1,7 +1,3 @@
-#include <iostream>
-#include <vector>
-#include <fstream>
-
 #include "functions.h"
 
 using namespace std;
@@ -11,9 +7,18 @@ int main(int argc, char** argv){
     FILE *standart_fp;
     FILE *test_fp;
 
+	
     standart_fp = fopen(argv[1], "rb");
     test_fp = fopen(argv[2], "rb");
-
+	if (standart_fp == NULL) {
+		std::cout << "file 1 not found" << std::endl;
+		getch();
+		exit (-1);
+	} else if (test_fp == NULL)	{
+		std::cout << "file 2 not found" << std::endl;
+		getch();
+		exit (-1);
+	}
     std::vector<double> standart_amplitude;
     std::vector<double> test_amplitude;
 
@@ -70,12 +75,12 @@ int main(int argc, char** argv){
 	std::cout << "size 1 = " << standart_coefficients.size() << " size 2  = " << test_coefficients.size() << std::endl;
 
 	double result = 0;
-	result = measureFrames(standart_coefficients, test_coefficients);
-
+	//result = measureFrames(standart_coefficients, test_coefficients);
+	result = townMeasure(standart_coefficients, test_coefficients);
 	std::cout << "result = " << result << std::endl;
 
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-	/*std::ofstream standart_mel("standart_mel.txt");
+	std::ofstream standart_mel("standart_mel.txt");
 	std::ofstream test_mel("test_mel.txt");
 	for (std::size_t i = 0; i < standart_coefficients.size(); ++i){
 		standart_mel << standart_coefficients[i] << std::endl;
@@ -104,7 +109,7 @@ int main(int argc, char** argv){
 		 standart_result1 << "======================================================================" << std::endl;
 		 test_result1 << "======================================================================" << std::endl;
 	}
-	std::cout << "write to file!" << std::endl;*/
+	std::cout << "write to file!" << std::endl;
 	
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 

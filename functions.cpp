@@ -285,7 +285,11 @@ void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<do
 			for (int k = 0; k < coeffs; ++k) {
 				temp_coefficients += x[k] * cos(j * (k - 1/2) * M_PI / coeffs);
 			}
-			coefficients.push_back(temp_coefficients);
+			if (i_frame == 0){
+				if ( j != 0 ) {
+					coefficients.push_back(temp_coefficients);
+				}
+			}
 		}
 	}
 }
@@ -307,5 +311,36 @@ double measureFrames(const std::vector<double>& standart_sample, const std::vect
 	}
 
 	result = abs(up_sum / (sqrt(left_sum) * sqrt(right_sum)));
+	return result;
+}
+
+double townMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample) {
+	std::vector<double> temp_vec1, temp_vec2, temp_vec;
+	double temp1 = 0, temp2 = 0;
+	int size = standart_sample.size()/(coeffs-1);
+	for (int i = 0; i < coeffs - 1; ++i) {
+		temp1 = 0;
+		temp2 = 0;
+		for (int j = 0; j < standart_sample.size(); j += (coeffs-1)) {
+			temp1 += standart_sample[j + i];
+			temp2 += test_sample[j + i];
+		}
+		temp1 /= size;
+		temp2 /= size;
+		temp_vec1.push_back(temp1);
+		temp_vec2.push_back(temp2);
+	}
+
+
+	//temp_vec.reserve(temp_vec1.size());
+	for (std::size_t i = 0; i < temp_vec1.size(); ++i) {
+		std::cout << std::setw(10) << std::left << temp_vec1[i] << " " << temp_vec2[i] << std::endl;
+		temp_vec.push_back(fabs(temp_vec1[i] - temp_vec2[i]));
+	}
+	double result = 0, sum = 0;
+	for  (std::size_t i = 0; i < temp_vec.size(); ++i) {
+		sum += temp_vec[i];		
+	}
+	result = sum / temp_vec.size();
 	return result;
 }

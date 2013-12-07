@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include <vector>
 #include <stdio.h>
 #include <iomanip>
@@ -10,6 +11,7 @@
 #include <complex>
 #include <conio.h>
 #include <ctime>
+#include <cstdlib>
 
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
@@ -32,3 +34,4 @@ void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output);
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl);
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients);
 double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+double townMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
