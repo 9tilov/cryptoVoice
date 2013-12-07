@@ -23,6 +23,7 @@ int main(int argc, char** argv){
 	/*++++++++++++++++++++++++++++ Получаем амплитуды ++++++++++++++++++++++++++++*/
 
 	/*++++++++++++++++++++++++++++++++++++ Режем на фреймы +++++++++++++++++++++++++++++++++*/
+	std::cout << "before : standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
 	cutAmplitude(standart_amplitude, test_amplitude);
 	std::cout << "standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
 	std::cout << "delta = " << test_amplitude.size() / frame << std::endl;
@@ -57,7 +58,7 @@ int main(int argc, char** argv){
 		FFTAnalysis(test_frames[i], output_test_frames[i]);
 	}
 	double t2 = clock();
-	std::cout << "FFT done! " << t2 - t1 << std::endl;
+	std::cout << "FFT done! " << t2 - t1 << " sizes : " << output_test_frames.size() << std::endl;
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ФУРЬЁ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 	
 	std::vector<double> standart_coefficients;
@@ -73,14 +74,15 @@ int main(int argc, char** argv){
 
 	std::cout << "result = " << result << std::endl;
 
-	std::ofstream standart_mel("standart_mel.txt");
+	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ВЫВОД ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+	/*std::ofstream standart_mel("standart_mel.txt");
 	std::ofstream test_mel("test_mel.txt");
 	for (std::size_t i = 0; i < standart_coefficients.size(); ++i){
 		standart_mel << standart_coefficients[i] << std::endl;
 			test_mel << test_coefficients[i] << std::endl;
 		}
 
-	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ВЫВОД ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+	
 	std::ofstream standart_result("standart_result.txt");
 	std::ofstream test_result("test_result.txt");
 	for (std::size_t i = 0; i < output_standart_frames.size(); ++i){
@@ -102,8 +104,8 @@ int main(int argc, char** argv){
 		 standart_result1 << "======================================================================" << std::endl;
 		 test_result1 << "======================================================================" << std::endl;
 	}
-	std::cout << "write to file!" << std::endl;
-
+	std::cout << "write to file!" << std::endl;*/
+	
 	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ВЫВОД ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 

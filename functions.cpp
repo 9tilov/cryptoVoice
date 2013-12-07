@@ -22,11 +22,13 @@ void getAmlitude(FILE *fp, std::vector<double> &amplitude){
 
 
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl){
-	if (standart_ampl > test_ampl) {
+	if (standart_ampl.size() > test_ampl.size()) {
+		std::cout<< standart_ampl.size() <<std::endl;
 		int total = test_ampl.size() / frame;
 		standart_ampl.resize(total * frame);
 		test_ampl.resize(total * frame);
 	} else {
+		std::cout<< test_ampl.size() <<std::endl;
 		int total = standart_ampl.size() / frame;
 		test_ampl.resize(total * frame);
 		standart_ampl.resize(total * frame);
@@ -236,16 +238,16 @@ void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output) 
  
 	for (i = 0; i < size; ++i) {
 		j = i * 2; 
-		output[size - i - 1] = pow(sqrt(pow(temp[j], 2) + pow(temp[j + 1], 2)), 2);
+		output[size - i - 1] = pow(temp[j], 2) + pow(temp[j + 1], 2);
 	}
 	delete []temp;
 }
-
+														  
 void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients) {
 	coefficients.reserve(coeffs * fourier[0].size());
 	double freq_low = freq_dis / 215, freq_high = freq_dis / 73, mel_low = 1127 * log(1 + freq_low / 700), mel_high = 1127 * log(1 + freq_high / 700), mel_dist = (mel_high - mel_low) / (coeffs + 1), sample_high;
 	
-	double mel_centries[coeffs], freq_centies[coeffs], x[coeffs], temp = 0;
+	double mel_centries[coeffs], freq_centies[coeffs], x[coeffs], temp_coefficients = 0;
 	int freq_samples[coeffs];
 	for (int i = 0; i < coeffs; ++i) {
 		x[i] = 0;
@@ -253,52 +255,52 @@ void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<do
 	for (int i = 0; i < coeffs; ++i){
 		mel_centries[i] = mel_low + mel_dist * (i + 1);
 		freq_centies[i] = 700 * (exp(mel_centries[i] / 1127) - 1);
-		freq_samples[i] = fourier[0].size() * freq_centies[i] / freq_dis;
+		freq_samples[i] = fourier[0].size() * freq_centies[i] / (2 * freq_dis);
 	}
 
-	for (std::size_t m = 0; m < fourier.size(); ++m) {
-		temp = 0;
+	for (std::size_t i_frame = 0; i_frame < fourier.size(); ++i_frame) {
 		for (int i = 0; i < coeffs; ++i) {
-			for (std::size_t k = 0; k < fourier[m].size(); ++k) {
-
-				if (i > 0 && i < coeffs - 1) {
-					if ((k < freq_samples[i]) && (k > freq_samples[i - 1])) {
-						x[i] += fourier[m][k] * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
-					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
-						x[i] += fourier[m][k] * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
-					}
-				} else if(i == 0) {
-					if (k < freq_samples[i - 1]) {
-						x[i] += fourier[m][k] * (k / freq_samples[i]);
-					} else if ((k < freq_samples[i + 1]) && (k > freq_samples[i])) {
-						x[i] += fourier[m][k] * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
-					}
-				} else if (i == coeffs - 1) {
-					if ((k < freq_samples[i]) && (k > freq_samples[i - 1])) {
-						x[i] += fourier[m][k] * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
-					} else if (k > freq_samples[i]) {
-						x[i] += fourier[m][k] * (k / freq_samples[i]);
-					}
+			x[i] = 0;
+		}
+		for (int i = 0; i < coeffs; ++i) {
+			if (i == 0){
+				for (int k = freq_samples[i]; k < freq_samples[i + 1]; ++k) {
+					 x[i] += (fourier[i_frame][k]) * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
+				}
+			} else if (i == coeffs-1) {
+				for (int k = freq_samples[i - 1]; k < freq_samples[i]; ++k) {
+					x[i] += (fourier[i_frame][k]) * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
+				}
+			} else {
+				for (int k = freq_samples[i - 1]; k <= freq_samples[i + 1]; ++k) {
+					if (k <= freq_samples[i]) 
+						x[i] += (fourier[i_frame][k]) * (k - freq_samples[i - 1]) / (freq_samples[i] - freq_samples[i - 1]);
+					else if (k >= freq_samples[i]) 
+						x[i] += (fourier[i_frame][k]) * (freq_samples[i + 1] - k) / (freq_samples[i + 1] - freq_samples[i]);
 				}
 			}
-			x[i] = log(x[i]);
 		}
-	}
-	for (int i = 0; i < coeffs; ++i){
-		coefficients.push_back(x[i]);
+		for (int j = 0; j < coeffs; ++j) {
+			temp_coefficients = 0;
+			for (int k = 0; k < coeffs; ++k) {
+				temp_coefficients += x[k] * cos(j * (k - 1/2) * M_PI / coeffs);
+			}
+			coefficients.push_back(temp_coefficients);
+		}
 	}
 }
 
+
 double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample) {
 	double result = 0, up_sum = 0, left_sum = 0, right_sum = 0, standart_expected_value = 0, test_expected_value = 0;
-	for (std::size_t i = 0; i < standart_sample.size(); ++i) {
+	for (std::size_t i = 0; i < coeffs/*standart_sample.size()*/; ++i) {
 		standart_expected_value += standart_sample[i];
 		test_expected_value += test_sample[i];
 	}
-	standart_expected_value /= standart_sample.size();
-	test_expected_value /= test_sample.size();
+	standart_expected_value /= coeffs;//standart_sample.size();
+	test_expected_value /= coeffs;//test_sample.size();
 
-	for (std::size_t i = 0; i < standart_sample.size(); ++i) {
+	for (std::size_t i = 0; i < coeffs/*standart_sample.size()*/; ++i) {
 		up_sum += (standart_sample[i] - standart_expected_value) * (test_sample[i] - test_expected_value);
 		left_sum += pow((standart_sample[i] - standart_expected_value), 2);
 		right_sum += pow((test_sample[i] - test_expected_value), 2);

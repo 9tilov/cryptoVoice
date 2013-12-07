@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <cstdint>
 #include <iostream>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <complex>
 #include <conio.h>
@@ -12,7 +13,7 @@
 
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
-const int frame = 4096;
+const int frame = 8192;
 const int coeffs = 16;
 const int freq_dis = 44100;
 
