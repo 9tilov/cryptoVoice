@@ -7,115 +7,114 @@ int main(int argc, char** argv){
     FILE *standart_fp;
     FILE *test_fp;
 
-	
+
+    if (argc != 2)
+        std::cout << "Enter correct path\n";
     standart_fp = fopen(argv[1], "rb");
     test_fp = fopen(argv[2], "rb");
-	if (standart_fp == NULL) {
-		std::cout << "file 1 not found" << std::endl;
-		getch();
-		exit (-1);
-	} else if (test_fp == NULL)	{
-		std::cout << "file 2 not found" << std::endl;
-		getch();
-		exit (-1);
-	}
+    if (standart_fp == NULL) {
+        std::cout << "file 1 not found" << std::endl;
+        exit (-1);
+    } else if (test_fp == NULL)        {
+        std::cout << "file 2 not found" << std::endl;
+        exit (-1);
+    }
     std::vector<double> standart_amplitude;
     std::vector<double> test_amplitude;
 
-	/*++++++++++++++++++++++++++++ Ïîëó÷àåì àìïëèòóäû ++++++++++++++++++++++++++++*/
+    /*++++++++++++++++++++++++++++ ÃÃ®Ã«Ã³Ã·Ã Ã¥Ã¬ Ã Ã¬Ã¯Ã«Ã¨Ã²Ã³Ã¤Ã» ++++++++++++++++++++++++++++*/
     getAmlitude(standart_fp, standart_amplitude);
     getAmlitude(test_fp, test_amplitude);
-	/*++++++++++++++++++++++++++++ Ïîëó÷àåì àìïëèòóäû ++++++++++++++++++++++++++++*/
+    /*++++++++++++++++++++++++++++ ÃÃ®Ã«Ã³Ã·Ã Ã¥Ã¬ Ã Ã¬Ã¯Ã«Ã¨Ã²Ã³Ã¤Ã» ++++++++++++++++++++++++++++*/
 
-	/*++++++++++++++++++++++++++++++++++++ Ğåæåì íà ôğåéìû +++++++++++++++++++++++++++++++++*/
-	std::cout << "before : standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
-	cutAmplitude(standart_amplitude, test_amplitude);
-	std::cout << "standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
-	std::cout << "delta = " << test_amplitude.size() / frame << std::endl;
-	/*++++++++++++++++++++++++++++++++++++ Ğåæåì íà ôğåéìû +++++++++++++++++++++++++++++++++*/
+    /*++++++++++++++++++++++++++++++++++++ ÃÃ¥Ã¦Ã¥Ã¬ Ã­Ã  Ã´Ã°Ã¥Ã©Ã¬Ã» +++++++++++++++++++++++++++++++++*/
+    std::cout << "before : standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
+    cutAmplitude(standart_amplitude, test_amplitude);
+    std::cout << "standart_size = " << standart_amplitude.size() << " test_size = " << test_amplitude.size() << std::endl;
+    std::cout << "delta = " << test_amplitude.size() / frame << std::endl;
+    /*++++++++++++++++++++++++++++++++++++ ÃÃ¥Ã¦Ã¥Ã¬ Ã­Ã  Ã´Ã°Ã¥Ã©Ã¬Ã» +++++++++++++++++++++++++++++++++*/
 
     int size_vector_of_frame = (static_cast<int> (2 * standart_amplitude.size())) / frame - 1;
-    
-	std::vector<std::vector<double>> standart_frames;
-	standart_frames.resize(size_vector_of_frame);
-    
-	std::vector<std::vector<double>> test_frames;
-	test_frames.resize(size_vector_of_frame);
-    
-	get(standart_amplitude, standart_frames);
+
+    std::vector<std::vector<double>> standart_frames;
+    standart_frames.resize(size_vector_of_frame);
+
+    std::vector<std::vector<double>> test_frames;
+    test_frames.resize(size_vector_of_frame);
+
+    get(standart_amplitude, standart_frames);
     get(test_amplitude, test_frames);
 
-	std::vector<std::vector<double>> output_standart_frames;
-	output_standart_frames.resize(size_vector_of_frame);
+    std::vector<std::vector<double>> output_standart_frames;
+    output_standart_frames.resize(size_vector_of_frame);
 
-	std::vector<std::vector<double>> output_test_frames;
-	output_test_frames.resize(size_vector_of_frame);
+    std::vector<std::vector<double>> output_test_frames;
+    output_test_frames.resize(size_vector_of_frame);
 
-	for (std::size_t i = 0; i < output_standart_frames.size(); ++i){
-		output_standart_frames[i].resize(frame);
-		output_test_frames[i].resize(frame);
-	}
-	
-	double t1 = clock();
-	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÔÓĞÜ¨áàíàğîòáëÿñóêà ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-	for (std::size_t i = 0; i < standart_frames.size(); ++i){
-		FFTAnalysis(standart_frames[i], output_standart_frames[i]);
-		FFTAnalysis(test_frames[i], output_test_frames[i]);
-	}
-	double t2 = clock();
-	std::cout << "FFT done! " << t2 - t1 << " sizes : " << output_test_frames.size() << std::endl;
-	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÔÓĞÜ¨ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-	
-	std::vector<double> standart_coefficients;
-	std::vector<double> test_coefficients;
+    for (std::size_t i = 0; i < output_standart_frames.size(); ++i){
+        output_standart_frames[i].resize(frame);
+        output_test_frames[i].resize(frame);
+    }
 
-	melCepstral(output_standart_frames, standart_coefficients);
-	melCepstral(output_test_frames, test_coefficients);
-	 
-	std::cout << "size 1 = " << standart_coefficients.size() << " size 2  = " << test_coefficients.size() << std::endl;
+    double t1 = clock();
+    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Ã”Ã“ÃÃœÂ¨Ã¡Ã Ã­Ã Ã°Ã®Ã²Ã¡Ã«Ã¿Ã±Ã³ÃªÃ  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    for (std::size_t i = 0; i < standart_frames.size(); ++i){
+        FFTAnalysis(standart_frames[i], output_standart_frames[i]);
+        FFTAnalysis(test_frames[i], output_test_frames[i]);
+    }
+    double t2 = clock();
+    std::cout << "FFT done! " << t2 - t1 << " sizes : " << output_test_frames.size() << std::endl;
+    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Ã”Ã“ÃÃœÂ¨ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-	double result = 0;
-	//result = measureFrames(standart_coefficients, test_coefficients);
-	result = townMeasure(standart_coefficients, test_coefficients);
-	std::cout << "result = " << result << std::endl;
+    std::vector<double> standart_coefficients;
+    std::vector<double> test_coefficients;
 
-	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-	std::ofstream standart_mel("standart_mel.txt");
-	std::ofstream test_mel("test_mel.txt");
-	for (std::size_t i = 0; i < standart_coefficients.size(); ++i){
-		standart_mel << standart_coefficients[i] << std::endl;
-			test_mel << test_coefficients[i] << std::endl;
-		}
+    melCepstral(output_standart_frames, standart_coefficients);
+    melCepstral(output_test_frames, test_coefficients);
 
-	
-	std::ofstream standart_result("standart_result.txt");
-	std::ofstream test_result("test_result.txt");
-	for (std::size_t i = 0; i < output_standart_frames.size(); ++i){
-		for (std::size_t j = 0; j < output_standart_frames[i].size(); ++j){
-			standart_result << output_standart_frames[i][j] << std::endl;
-			test_result << output_test_frames[i][j] << std::endl;
-		}
-		 standart_result << "======================================================================" << std::endl;
-		 test_result << "======================================================================" << std::endl;
-	}
+    std::cout << "size 1 = " << standart_coefficients.size() << " size 2  = " << test_coefficients.size() << std::endl;
 
-	std::ofstream standart_result1("result1.txt");
-	std::ofstream test_result1("result2.txt");
-	for (std::size_t i = 0; i < standart_frames.size(); ++i){
-		for (std::size_t j = 0; j < standart_frames[i].size(); ++j){
-			standart_result1 << standart_frames[i][j] << std::endl;
-			test_result1 << test_frames[i][j] << std::endl;
-		}
-		 standart_result1 << "======================================================================" << std::endl;
-		 test_result1 << "======================================================================" << std::endl;
-	}
-	std::cout << "write to file!" << std::endl;
-	
-	/*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ ÂÛÂÎÄ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    double result = 0;
+    //result = measureFrames(standart_coefficients, test_coefficients);
+    result = townMeasure(standart_coefficients, test_coefficients);
+    std::cout << "result = " << result << std::endl;
+
+    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Ã‚Ã›Ã‚ÃÃ„ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+    std::ofstream standart_mel("standart_mel.txt");
+    std::ofstream test_mel("test_mel.txt");
+    for (std::size_t i = 0; i < standart_coefficients.size(); ++i){
+        standart_mel << standart_coefficients[i] << std::endl;
+        test_mel << test_coefficients[i] << std::endl;
+    }
 
 
-	fclose(standart_fp);
-	fclose(test_fp);
-	getch();
+    std::ofstream standart_result("standart_result.txt");
+    std::ofstream test_result("test_result.txt");
+    for (std::size_t i = 0; i < output_standart_frames.size(); ++i){
+        for (std::size_t j = 0; j < output_standart_frames[i].size(); ++j){
+            standart_result << output_standart_frames[i][j] << std::endl;
+            test_result << output_test_frames[i][j] << std::endl;
+        }
+        standart_result << "======================================================================" << std::endl;
+        test_result << "======================================================================" << std::endl;
+    }
+
+    std::ofstream standart_result1("result1.txt");
+    std::ofstream test_result1("result2.txt");
+    for (std::size_t i = 0; i < standart_frames.size(); ++i){
+        for (std::size_t j = 0; j < standart_frames[i].size(); ++j){
+            standart_result1 << standart_frames[i][j] << std::endl;
+            test_result1 << test_frames[i][j] << std::endl;
+        }
+        standart_result1 << "======================================================================" << std::endl;
+        test_result1 << "======================================================================" << std::endl;
+    }
+    std::cout << "write to file!" << std::endl;
+
+    /*+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ Ã‚Ã›Ã‚ÃÃ„ ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+
+    fclose(standart_fp);
+    fclose(test_fp);
     return 0;
 }

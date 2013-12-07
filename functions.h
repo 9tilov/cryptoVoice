@@ -9,7 +9,6 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <complex>
-#include <conio.h>
 #include <ctime>
 #include <cstdlib>
 
