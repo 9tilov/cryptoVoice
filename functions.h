@@ -1,5 +1,3 @@
-#pragma once
-
 #include <fstream>
 #include <vector>
 #include <stdio.h>
@@ -31,6 +29,8 @@ double newComparingAmplitudes(const std::vector<double>& first_file, const std::
 void newfourierTransformWithAmplitudes(const std::vector<double>& amplitude, std::vector<double>& fourier);
 void FFTAnalysis(const std::vector<double>& input, std::vector<double>& output);
 void cutAmplitude(std::vector<double>& standart_ampl, std::vector<double>& test_ampl);
-void melCepstral(const std::vector<std::vector<double>>& fourier, std::vector<double>& coefficients);
+void melCepstral(const std::vector<double>& fourier, std::vector<double>& coefficients);
 double measureFrames(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
 double townMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+double deltaMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+double summMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
