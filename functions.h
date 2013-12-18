@@ -13,14 +13,15 @@
 const double PI = 3.14159265;
 const double TwoPi = 6.2831853;
 const int frame = 8192;
-const int coeffs = 16;
+const int coeffs = 20;
 const int freq_dis = 44100;
+const double limit = 1.8;
 
 void getAmlitude(FILE *fp, std::vector<double> &amplitude);
 void getFrames(const std::vector<double> &amplitude, std::vector<std::vector<double>> &frames);
 void addZeroes(std::vector<double> &amplitude);
 void get(const std::vector <double> &amplitude, std::vector<std::vector<double>> &frames);
-void Hamming(std::vector<std::vector<double>>& frames);
+void Hamming(std::vector<double>& frames);
 void newHamming(std::vector<std::vector<double>>& frames);
 void fourierTransform(std::vector<std::vector<double>>& fourierFrame, std::vector<std::vector<double>>& frames);
 void FourierTransform(std::vector<std::vector<double>>& fourierFrame, const std::vector<std::vector<double>>& frames);
@@ -34,3 +35,6 @@ double measureFrames(const std::vector<double>& standart_sample, const std::vect
 double townMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
 double deltaMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
 double summMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+void normalAmplitudes(std::vector<double>& amplitude);
+double degreeMeasure(const std::vector<double>& standart_sample, const std::vector<double>& test_sample);
+
